@@ -1,0 +1,19 @@
+.attalos-score {
+      border: 2px solid #007bff!important;
+      border-radius: 10px;
+      padding: 10px;
+      width:50%;
+}
+/* The max width is dependant on the container (more info below) */
+.popover{
+    max-width: 35% !important; /* Max Width of the popover (depending on the container!) */
+    position: absolute !important;
+    margin-top: 405px !important;
+}
+.popupdiv{
+  width:500px;
+  height:200px;
+    background: #0000a4;
+  font-family: 'Open Sans', sans-serif;
+}
+
