@@ -1,0 +1,80 @@
+.attalos-score {
+  border: 2px solid #007bff!important;
+  border-radius: 10px;
+  padding: 10px;
+  width:50%;
+}
+/* The max width is dependant on the container (more info below) */
+.popover{
+    max-width: 450px !important; /* Max Width of the popover (depending on the container!) */
+    position: absolute !important;
+    margin-top: 290px !important;
+}
+.not-logged-in {
+    width: 90%;
+}
+.card_text {
+    max-width: 300px;
+    margin-top:25px;
+    margin-left:10px;
+    }
+.border-attalos {
+    border: 2px solid #d5b65e!important;
+}
+.bg-attalos{
+    background-color: #34b185!important;
+    color:white!important;
+}
+.no-border {
+    border: none !important;
+}
+.strike {
+    display: block;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap; 
+    padding:10px;
+}
+
+.strike > span {
+    position: relative;
+    display: inline-block;
+}
+
+.strike > span:before,
+.strike > span:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 9999px;
+    height: 1px;
+    background: grey;
+}
+
+.strike > span:before {
+    right: 100%;
+    margin-right: 15px;
+}
+
+.strike > span:after {
+    left: 100%;
+    margin-left: 15px;
+}
+
+.position_icon {
+    height:40px;
+}
+.position {
+    size:12px;
+    width: 40px;
+    height: 40px;
+    font-weight: bold;
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Horizontally center content */
+  align-items: center; /* Vertically center content */
+    
+}
+.position_number {
+  text-align: center; /* Center text horizontally within span */
+}
+
