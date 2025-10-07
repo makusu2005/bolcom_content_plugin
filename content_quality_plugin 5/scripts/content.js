@@ -3,43 +3,78 @@ chrome.storage.sync.get(["on"]).then((result) => {
   let jsonData = null;
 
   var switchStatus = result.on
-  const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
-  if (jsonLdScript) {
-    try {
-      const jsonLdText = jsonLdScript.textContent.trim();
-      const jsonData = JSON.parse(jsonLdText);
+const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+if (jsonLdScript) {
+  try {
+    const jsonLdText = jsonLdScript.textContent.trim();
+    const jsonData = JSON.parse(jsonLdText);
 
-      console.log("✅ Full JSON-LD object:", jsonData);
+    //console.log("✅ Full JSON-LD object:", jsonData);
+    ean = null;
 
-      // Basic info
-      if (jsonData.name) {
-        console.log("Product name:", jsonData.name);
+    // --- Basic info (optional) ---
+    if (jsonData.name) //console.log("Product name:", jsonData.name);
+    if (jsonData.description) //console.log("Description:", jsonData.description);
+
+    // --- 1️⃣ ProductGroup / Product structure ---
+    if (jsonData.hasVariant && Array.isArray(jsonData.hasVariant)) {
+      const eans = jsonData.hasVariant
+        .map(v => v.gtin13 || v.gtin || v.ean)
+        .filter(Boolean);
+      if (eans.length > 0) {
+        ean = eans[0];
+        //console.log("✅ Found GTIN13 from hasVariant:", ean);
       }
-      if (jsonData.description) {
-        console.log("Description:", jsonData.description);
-      }
+    }
 
-      // Get all GTIN13 values from variants
-      if (jsonData.hasVariant && Array.isArray(jsonData.hasVariant)) {
-        const eans = jsonData.hasVariant
-          .map(v => v.gtin13)
-          .filter(Boolean);
-        console.log("Found GTIN13 values:", eans);
-        if (eans.length > 0) {
-          ean = eans[0]; // pick the first one if you just need one
+    // --- 2️⃣ workExample.identifier structure (Movie, Book, Media, etc.) ---
+    if (!ean && Array.isArray(jsonData.workExample)) {
+      for (const example of jsonData.workExample) {
+        if (Array.isArray(example.identifier)) {
+          const found = example.identifier.find(id =>
+            id.propertyID &&
+            ["gtin13", "ean", "gtin"].includes(id.propertyID.toLowerCase()) &&
+            id.value
+          );
+          if (found) {
+            ean = found.value;
+            //console.log("✅ Found GTIN13 from workExample.identifier:", ean);
+            break;
+          }
         }
       }
-
-      if (!ean) {
-        console.log("⚠️ No GTIN13 found, falling back.");
-      }
-
-    } catch (err) {
-      console.error("❌ Failed to parse JSON-LD:", err);
     }
-  } else {
-    console.log("⚠️ JSON-LD script not found.");
+
+    // --- 3️⃣ Direct identifier (some listings put it flat) ---
+    if (!ean && Array.isArray(jsonData.identifier)) {
+      const found = jsonData.identifier.find(id =>
+        id.propertyID &&
+        ["gtin13", "ean", "gtin"].includes(id.propertyID.toLowerCase()) &&
+        id.value
+      );
+      if (found) {
+        ean = found.value;
+        //console.log("✅ Found GTIN13 from top-level identifier:", ean);
+      }
+    }
+
+    // --- 4️⃣ Direct property on root (rare) ---
+    if (!ean && (jsonData.gtin13 || jsonData.ean)) {
+      ean = jsonData.gtin13 || jsonData.ean;
+      //console.log("✅ Found GTIN13 directly on JSON-LD root:", ean);
+    }
+
+    if (!ean) {
+      console.warn("⚠️ No GTIN/EAN found in JSON-LD structure.");
+    }
+
+  } catch (err) {
+    console.error("❌ Failed to parse JSON-LD:", err);
   }
+} else {
+  console.warn("⚠️ JSON-LD script not found.");
+}
+
 
 // Try to select the element with the first selector
 var breadcrumbs = document.querySelector('[class="fluid-grid fluid-grid--middle"]');
@@ -74,7 +109,8 @@ if (reviewsEl) {
   }
 }
 
-console.log("⭐ Score:", review_score, " Reviews:", no_reviews);
+
+//console.log("⭐ Score:", review_score, " Reviews:", no_reviews);
 
 
 
@@ -84,7 +120,6 @@ if (video) {
 else {
   var has_video = 'no video'
 }
-console.log("HOI")
 var no_images = 1
 if (images) {
   no_images = images.length;
@@ -103,7 +138,7 @@ else {
 
 
 
-var title = document.querySelector('[data-test="title"]');
+var title = document.querySelector('[data-test="product-title"]');
 var title_text = document.querySelector('[data-test="title"]');
 
 if (title_text) {
@@ -318,7 +353,7 @@ if (title_text) {
         document.head.appendChild(style);
 
         // --- Your existing button creation ---
-        const sdd_open = document.createElement("btn");
+        const sdd_open = document.createElement("a");
         sdd_open.type = "button";
         sdd_open.classList.add("btn", "btn-secondary", "float-left", "bg-attalos", "border-attalos", "m-1", "attalos-btn");
         sdd_open.textContent = "SDD productoverzicht";
@@ -328,7 +363,7 @@ if (title_text) {
         sdd_open.href = "https://attalosagency.com/out/index.php?url=https://partner.bol.com/sdd/product-overview/products/" + globalid;
         sdd_open.target = "_blank"
 
-        const prod_open = document.createElement("btn");
+        const prod_open = document.createElement("a");
         prod_open.type = "button";
         prod_open.classList.add("btn", "btn-secondary", "float-left", "bg-attalos", "border-attalos", "attalos-btn");
         prod_open.textContent = "SDD productcontent";
@@ -347,7 +382,7 @@ if (title_text) {
 
 
         const links = document.createElement("div");
-                links.classList.add("card", "mb-3", "w-50", "h-100", "no-border", "p-3")
+        //links.classList.add("card", "mb-3", "w-50", "h-100", "no-border", "p-3")
 
         const card = document.createElement("div");
         card.classList.add("card", "mb-3", "w-50", "h-100", "no-border", "p-3")
@@ -442,7 +477,7 @@ if (title_text) {
 // 🔥 Remove any Bol.com tooltip popovers that interfere with clicks
 function removeBadTooltips() {
   document.querySelectorAll('.tooltip.js_tooltip_content').forEach(el => {
-    console.log("⚠️ Removing interfering tooltip:", el.id || el);
+    //console.log("⚠️ Removing interfering tooltip:", el.id || el);
     el.remove();
   });
 }
@@ -525,6 +560,8 @@ if (breadcrumbsLinks.length > 0) {
     // Split the URL by '/'
   url = String(lastBreadcrumbsLink);
   var category = url.match(/\d+/g).pop();
+  //alert(category)
+  //alert(ean)
 };
 
 
@@ -534,7 +571,7 @@ if (breadcrumbsLinks.length > 0) {
 chrome.runtime.sendMessage({ operation: "getSpotValue", ean: ean, category: category }, response => {
   if (response && response.spotValue) {
     var spot = response.spotValue;
-    console.log("Spot value received in content script:", spot);
+    //console.log("Spot value received in content script:", spot);
     const position = document.createElement("div");
     position.classList.add("position", "p-2", "float-left", "border-attalos", "rounded-circle");
     const position_number = document.createElement("span");
