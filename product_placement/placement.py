@@ -82,7 +82,7 @@ def pos_bol():
 
   payload = "{\n  \"countryCode\": \"NL\",\n  \"searchTerm\": \"laptop\",\n  \"categoryId\": \"4770\",\n  \"filterRanges\": [\n    {\n      \"rangeId\": \"PRICE\",\n      \"min\": 0,\n      \"max\": 0\n    }\n  ],\n  \"filterValues\": [\n    {\n      \"filterValueId\": \"30639\"\n    }\n  ],\n  \"sort\": \"RELEVANCE\",\n  \"page\": 1\n}"
   headers = {
-    'Accept': 'application/vnd.retailer.v9+json',
+    'Accept': 'application/vnd.retailer.v10+json',
         'Authorization': 'Bearer '+token,
 
     'Accept-Language': 'nl'
@@ -108,9 +108,9 @@ def get_position(cat_id, target_ean, cat_name):
       }
       )
     headers = {
-    'Accept': 'application/vnd.retailer.v9+json', 
+    'Accept': 'application/vnd.retailer.v10+json', 
     'Authorization': 'Bearer '+token,
-    'Content-Type': 'application/vnd.retailer.v9+json',
+    'Content-Type': 'application/vnd.retailer.v10+json',
     'Accept-Language': 'nl-NL'
     }
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -145,9 +145,9 @@ def get_placement(product_ean):
   url = "https://api.bol.com/retailer/products/"+ product_ean+"/placement" 
   payload = {}
   headers = {
-  'Accept': 'application/vnd.retailer.v9+json', 
+  'Accept': 'application/vnd.retailer.v10+json', 
   'Authorization': 'Bearer '+token,
-  'Content-Type': 'application/vnd.retailer.v9+json'
+  'Content-Type': 'application/vnd.retailer.v10+json'
   }
   response = requests.request("GET", url, headers=headers, data=payload)
   data = response.json()

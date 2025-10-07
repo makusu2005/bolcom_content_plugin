@@ -72,9 +72,9 @@ function get_position_bol($cat_id, $target_ean) {
         );
 
         $headers = array(
-            'Accept: application/vnd.retailer.v9+json',
+            'Accept: application/vnd.retailer.v10+json',
             'Authorization: Bearer ' . $token,
-            'Content-Type: application/vnd.retailer.v9+json',
+            'Content-Type: application/vnd.retailer.v10+json',
             'Accept-Language: nl-NL'
         );
 
@@ -152,7 +152,7 @@ function get_placement_bol($product_ean) {
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'GET',
       CURLOPT_HTTPHEADER => array(
-        'Accept: application/vnd.retailer.v9+json',
+        'Accept: application/vnd.retailer.v10+json',
         'Authorization' => 'Authorization: Bearer ' . $token,
         'Accept-Language: nl'
     ),

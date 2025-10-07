@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Attalos - bol.com listing content score",
-  "version": "1.0.11",
-  "description": "Voegt een content kwaliteitsscore toe aan bol.com listings & laat search ranking in de categorie zien.",
+  "name": "Attalos - bol listing content score",
+  "version": "1.1.0",
+  "description": "Voegt een content kwaliteitsscore toe aan bol listings & laat search ranking in de categorie zien.",
 
   "icons": {
     "16": "images/icon-16.png",
