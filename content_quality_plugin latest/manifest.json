@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Attalos - bol listing content score",
-  "version": "1.1.4",
+  "version": "1.2.2",
   "description": "Voegt een content kwaliteitsscore toe aan bol listings & laat search ranking in de categorie zien.",
 
   "icons": {
@@ -20,7 +20,12 @@
   },
 
   "permissions": ["cookies", "scripting", "storage"],
-  "host_permissions": ["https://attalosagency.com/*", "https://bol.com/*", "https://www.bol.com/*", "https://position.attalosagency.com/*"],
+  "host_permissions": [
+    "https://attalosagency.com/*",
+    "https://bol.com/*",
+    "https://www.bol.com/*",
+    "https://position.attalosagency.com/*"
+  ],
   "content_scripts": [
     {
       "matches": [
@@ -34,19 +39,9 @@
         "https://www.bol.com/be/fr/p/*"
       ],
 
-      "css": [
-        "scripts/attalos_style.css",
-        "scripts/bootstrap.min.css",        
-        "scripts/bootstrap-icons.css"        
-      ],
-      "js": [
-        "scripts/jquery-3.6.1.min.js",
-        "scripts/bootstrap.bundle.min.js",
-        "scripts/init-content.js"
-
-      ]
-
+      "css": ["scripts/attalos_style.css", "scripts/bootstrap-icons.css"],
+      "js": ["scripts/jquery-3.6.1.min.js", "scripts/init-content.js"],
+      "run_at": "document_end"
     }
   ]
-
 }

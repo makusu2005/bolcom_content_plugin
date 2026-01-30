@@ -1,19 +1,23 @@
-'use strict';
+"use strict";
 
 /**
  * Main function, runs once each time the popup window is opened.
  */
 (async () => {
-  console.log('[init-content]: requesting login details from background.js...');
+  console.log("[init-content]: requesting login details from background.js...");
 
   const loginDetails = await getLoginDetails();
 
-  console.log('[init-content]: received login details from background.js!', loginDetails);
+  console.log(
+    "[init-content]: received login details from background.js!",
+    loginDetails
+  );
 
-  console.log('[init-content]: requesting to inject content.js...');
+  console.log("[init-content]: requesting to inject content.js...");
 
   if (loginDetails.isLoggedIn) {
     await injectContentJs();
+    console.log("content injected");
   } else {
     await injectContentLoginJs();
   }
@@ -28,9 +32,12 @@
  */
 async function getLoginDetails() {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({
-      operation: 'getLoginDetails',
-    }, resolve);
+    chrome.runtime.sendMessage(
+      {
+        operation: "getLoginDetails",
+      },
+      resolve
+    );
   });
 }
 
@@ -40,9 +47,12 @@ async function getLoginDetails() {
  */
 async function injectContentJs() {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({
-      operation: 'injectContentJs',
-    }, resolve);
+    chrome.runtime.sendMessage(
+      {
+        operation: "injectContentJs",
+      },
+      resolve
+    );
   });
 }
 
@@ -52,8 +62,11 @@ async function injectContentJs() {
  */
 async function injectContentLoginJs() {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({
-      operation: 'injectContentLoginJs',
-    }, resolve);
+    chrome.runtime.sendMessage(
+      {
+        operation: "injectContentLoginJs",
+      },
+      resolve
+    );
   });
 }
